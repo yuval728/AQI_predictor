@@ -2,3 +2,7 @@ env
 data
 dataset
 __pycache__
+
+.env
+
+venv/
