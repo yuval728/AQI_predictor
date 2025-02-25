@@ -79,18 +79,27 @@ def main():
            
             # print(f"Captured Image Type: {type(image)}")
             # print(f"Satellite Image Type: {type(satellite_image)}")
-            aqi_result = predict_aqi(image, satellite_image)
+            names, aqi_results, accuracy = predict_aqi(image, satellite_image) 
+            print(names, aqi_results, accuracy)
 
+            avg_aqi = round(sum(aqi_results) / len(aqi_results),2)
+
+            data = {
+                "Model": names,
+                "AQI": aqi_results,
+                "Accuracy": accuracy
+            }
+            
             col3, col4 = st.columns(2)
             with col3:
                 st.subheader("Location Details")
                 st.table({"Latitude": lat, "Longitude": lon})
                 st.subheader("Average result AQI")
-                st.table({"AQI": aqi_result})
+                st.table({"AQI": avg_aqi })
                 # dummy table to display the results obtained from different models
                 st.subheader("Model Results")
                 df = pd.DataFrame(
-                    data=[['resnet18', 'some value', aqi_result], ['model2', 'some value', 100], ['model3', 'some value', 100]],
+                    data=data,
                     columns=["Model", "Accuracy", "AQI"],
                 )
 
@@ -98,24 +107,19 @@ def main():
 
             with col4:
                 st.subheader("Location on map")
-
-                df = pd.DataFrame(
-                    data=[[lat, lon, aqi_result]],
-                    columns=["lat", "lon", 'aqi'],
-                )
                 
                 # color selection
-                if aqi_result < 50:
+                if avg_aqi < 50:
                     color = [0, 255, 0]  # Green
-                elif aqi_result < 100:
+                elif avg_aqi < 100:
                     color = [255, 255, 0]  # Yellow
-                elif aqi_result < 150:
+                elif avg_aqi < 150:
                     color = [255, 165, 0]  # Orange
                 else:
                     color = [255, 0, 0]  # Red
 
                 # Create DataFrame
-                df = pd.DataFrame([[lat, lon, aqi_result]], columns=["lat", "lon", "aqi"])
+                df = pd.DataFrame([[lat, lon, avg_aqi]], columns=["lat", "lon", "aqi"])
 
                 # Define PyDeck Layer
                 layer = pdk.Layer(
