@@ -2,6 +2,8 @@ import torch.nn as nn
 from torchvision import models
 
 class BaseEncoder(nn.Module):
+
+
     """
     A flexible encoder model that supports different architectures (ResNet, EfficientNet, etc.).
     """
@@ -24,7 +26,7 @@ class BaseEncoder(nn.Module):
         assert arch in arch_dict, f"Unsupported architecture: {arch}. Choose from {list(arch_dict.keys())}"
 
         # Load the model
-        self.model = arch_dict[arch](weights="DEFAULT" if pretrained else None)
+        self.model = arch_dict[arch](weights="DEFAULT" if pretrained else None) 
 
         if "resnet" in arch:
             self.feature_dim = self.model.fc.in_features

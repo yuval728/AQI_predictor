@@ -5,8 +5,10 @@ import pandas as pd
 from PIL import Image
 from streamlit_geolocation import streamlit_geolocation
 from utils.fetch_satellite import fetch_satellite
+from utils.fetch_7_bands import fetch_7_bands
 import pydeck as pdk
 from utils.predict_aqi import predict_aqi
+import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
@@ -69,17 +71,43 @@ def main():
             
             # Fetch satellite image
             satellite_image = fetch_satellite(lat, lon)
+            satellite_image_7_bands = fetch_7_bands(lat, lon)
             satellite_image = Image.open(satellite_image)
             # resizing the image to match the captured image
             satellite_image_resized = satellite_image.resize((captured_width, captured_height))
+            
 
             with col2:
                 st.image(satellite_image_resized, caption="Satellite Image", use_container_width=True)
             
+            band_names = [
+                    "Blue",
+                    "Green",
+                    "Red",
+                    "Near Infrared (NIR)",
+                    "Shortwave Infrared 1 (SWIR 1)",
+                    "Thermal Infrared (TIR)",
+                    "Shortwave Infrared 2 (SWIR 2)"
+                ]
+
+            if satellite_image_7_bands is not None:
+                st.subheader("Satellite Image Bands")
+                
+                plt.figure(figsize=(15, 3))  # Adjust width for better display
+                for i, band in enumerate(satellite_image_7_bands):
+                    plt.subplot(1, 7, i + 1)  # 1 row, 7 columns
+                    plt.imshow(band, cmap='gray')  # Grayscale or RGB depending on data
+                    plt.axis('off')
+                    plt.title(band_names[i], fontsize=8)
+                
+                st.pyplot(plt)
+            else:
+                st.warning("Could not fetch 7-band satellite image.")
+
            
             # print(f"Captured Image Type: {type(image)}")
             # print(f"Satellite Image Type: {type(satellite_image)}")
-            names, aqi_results, accuracy = predict_aqi(image, satellite_image) 
+            names, aqi_results, accuracy = predict_aqi(image, satellite_image, satellite_image_7_bands) 
             print(names, aqi_results, accuracy)
 
             avg_aqi = round(sum(aqi_results) / len(aqi_results),2)
