@@ -100,11 +100,12 @@ def main():
                 "SO2": [result["predictions"]["SO2"] for result in results],
                 "NO2": [result["predictions"]["NO2"] for result in results]
             }
+            
 
             col3, col4 = st.columns(2)
             with col3:
                 st.subheader("Location Details")
-                st.table({"Latitude": lat, "Longitude": lon})
+                st.table({"Latitude": lat, "Longitude": lon}, )
                 st.subheader("Average AQI")
                 st.table({"AQI": avg_aqi})
                 st.subheader("Model Results")
