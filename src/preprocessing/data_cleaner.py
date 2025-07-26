@@ -130,6 +130,58 @@ class DataCleaner:
         
         return df
     
+    def clean_aqi_values(self, df: pd.DataFrame, aqi_col: str = 'aqi') -> pd.DataFrame:
+        """
+        Alias for validate_aqi_values method.
+        
+        Args:
+            df: DataFrame with AQI data
+            aqi_col: Name of AQI column
+            
+        Returns:
+            Cleaned DataFrame
+        """
+        return self.validate_aqi_values(df, aqi_col)
+    
+    def create_aqi_categories(self, df: pd.DataFrame, aqi_col: str = 'aqi') -> pd.DataFrame:
+        """
+        Alias for add_aqi_category method.
+        
+        Args:
+            df: DataFrame with AQI data
+            aqi_col: Name of AQI column
+            
+        Returns:
+            DataFrame with AQI category column
+        """
+        return self.add_aqi_category(df, aqi_col)
+    
+    def normalize_features(self, df: pd.DataFrame, features: List[str]) -> pd.DataFrame:
+        """
+        Normalize numerical features using Min-Max scaling.
+        
+        Args:
+            df: DataFrame with features to normalize
+            features: List of feature column names
+            
+        Returns:
+            DataFrame with normalized features
+        """
+        logger.info(f"Normalizing features: {features}")
+        
+        from sklearn.preprocessing import MinMaxScaler
+        
+        df_normalized = df.copy()
+        scaler = MinMaxScaler()
+        
+        for feature in features:
+            if feature in df_normalized.columns:
+                df_normalized[f'{feature}_normalized'] = scaler.fit_transform(
+                    df_normalized[[feature]]
+                ).flatten()
+        
+        return df_normalized
+    
     def remove_outliers(self, df: pd.DataFrame, 
                        columns: List[str],
                        method: str = 'iqr',

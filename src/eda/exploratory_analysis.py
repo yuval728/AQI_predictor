@@ -469,3 +469,8 @@ class ExploratoryAnalysis:
         logger.info("Comprehensive EDA completed")
         
         return eda_results
+
+    # Alias methods for backward compatibility
+    def analyze_aqi_distribution(self, df: pd.DataFrame, aqi_col: str = 'AQI') -> Dict[str, Any]:
+        """Alias for aqi_distribution_analysis method."""
+        return self.aqi_distribution_analysis(df, aqi_col=aqi_col, save_plots=True)
