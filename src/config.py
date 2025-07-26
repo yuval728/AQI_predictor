@@ -2,6 +2,7 @@
 Configuration settings for the AQI Predictor application.
 """
 import os
+import torch
 
 # Earth Engine Configuration
 EARTH_ENGINE_PROJECT_ID = os.getenv('EARTH_ENGINE_PROJECT_ID', 'ee-yuvalmehta728')
@@ -10,6 +11,24 @@ EARTH_ENGINE_PROJECT_ID = os.getenv('EARTH_ENGINE_PROJECT_ID', 'ee-yuvalmehta728
 IMAGE_RESOLUTION = 30  # Resolution in meters
 IMAGE_PIXELS = 224    # Number of pixels for square images
 DATE_RANGE_DAYS = 30  # Days to look back for satellite images
+
+# Training Configuration
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+SEED = 71  # for reproducibility
+BATCH_SIZE = 164  # number of samples processed in one training batch
+EPOCHS = 45  # number of training iterations over the entire dataset
+LEARNING_RATE = 2e-2  # to update model weights
+IMG_SIZE = 224  # input image size
+NUM_FROZEN_LAYERS = 0  # 0 indicates that all layers are trainable
+DROPOUT = 0.5
+LABELS = ['AQI', 'PM2.5', 'PM10', 'O3', 'CO', 'SO2', 'NO2']
+
+# Model architectures
+SATELLITE_ENCODER = "resnet18"
+STREET_ENCODER = "resnet18"
+ATTENTION_TYPE = "sigmoid_gated"  # "softmax_gated", "sigmoid_gated", "cross"
+SATELLITE_EXTRA_LAYER = False
+STREET_EXTRA_LAYER = False
 
 # Model Configuration
 DEVICE = "cuda"  # Will be updated based on availability
