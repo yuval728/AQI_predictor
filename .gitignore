@@ -1,8 +1,94 @@
-env
-data
-dataset
-__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
 
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environments
 .env
-
+.venv
+env/
 venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Project-specific files
+data/
+dataset/
+!data/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Satellite images
+*.jpg
+*.jpeg
+*.png
+*.tif
+*.tiff
+
+# Model files
+*.pth
+*.pkl
+*.joblib
+*.h5
+
+# Logs
+*.log
+logs/
+
+# EDA outputs
+eda_outputs/
+eda_results/
+visualizations/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Temporary files
+temp/
+tmp/
+.tmp/
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Google Earth Engine credentials
+.config/earthengine/
+
+# API keys and secrets
+.env.local
+.env.production
+.env.development
+secrets.json
+config.json
+
+# Streamlit
+.streamlit/

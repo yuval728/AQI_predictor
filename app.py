@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 from streamlit_geolocation import streamlit_geolocation
-from utils.fetch_satellite import fetch_satellite
-from utils.fetch_7_bands import fetch_7_bands
+from src.satellite_utils import fetch_satellite, fetch_7_bands
 import pydeck as pdk
-from utils.predict_aqi import predict_aqi
+from src.prediction import predict_aqi
+from src.data_processing import get_aqi_color
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
@@ -114,7 +114,8 @@ def main():
 
             with col4:
                 st.subheader("Location on Map")
-                color = [0, 255, 0] if avg_aqi < 50 else [255, 255, 0] if avg_aqi < 100 else [255, 165, 0] if avg_aqi < 150 else [255, 0, 0]
+                from src.data_processing import get_aqi_color
+                color = get_aqi_color(avg_aqi)
                 df_map = pd.DataFrame([[lat, lon, avg_aqi]], columns=["lat", "lon", "aqi"])
                 layer = pdk.Layer(
                     "ScatterplotLayer",
