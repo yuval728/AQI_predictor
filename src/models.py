@@ -1,6 +1,3 @@
-"""
-Neural network models for AQI prediction.
-"""
 import torch
 import torch.nn as nn
 from torchvision import models

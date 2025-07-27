@@ -1,6 +1,3 @@
-"""
-Visualization utilities for AQI prediction training and results.
-"""
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Tuple, Optional

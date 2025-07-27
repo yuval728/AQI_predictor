@@ -1,11 +1,14 @@
-"""
-Configuration settings for the AQI Predictor application.
-"""
 import os
 import torch
 
 # Earth Engine Configuration
 EARTH_ENGINE_PROJECT_ID = os.getenv('EARTH_ENGINE_PROJECT_ID', 'ee-yuvalmehta728')
+
+# Dataset Configuration
+DATASET_PATH = os.getenv('DATASET_PATH', 'data')
+TRAIN_CSV = os.getenv('TRAIN_CSV', 'data/train_data.csv')
+VAL_CSV = os.getenv('VAL_CSV', 'data/val_data.csv')
+TEST_CSV = os.getenv('TEST_CSV', 'data/test_data.csv')
 
 # Image Processing Parameters
 IMAGE_RESOLUTION = 30  # Resolution in meters
@@ -16,22 +19,21 @@ DATE_RANGE_DAYS = 30  # Days to look back for satellite images
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 SEED = 71  # for reproducibility
 BATCH_SIZE = 164  # number of samples processed in one training batch
-EPOCHS = 45  # number of training iterations over the entire dataset
+EPOCHS = 1  # number of training iterations over the entire dataset
 LEARNING_RATE = 2e-2  # to update model weights
 IMG_SIZE = 224  # input image size
-NUM_FROZEN_LAYERS = 0  # 0 indicates that all layers are trainable
+NUM_FROZEN_LAYERS = 2  # 0 indicates that all layers are trainable
 DROPOUT = 0.5
 LABELS = ['AQI', 'PM2.5', 'PM10', 'O3', 'CO', 'SO2', 'NO2']
 
 # Model architectures
-SATELLITE_ENCODER = "resnet18"
-STREET_ENCODER = "resnet18"
+SATELLITE_ENCODER = "mobilenet_v3_small"
+STREET_ENCODER = "mobilenet_v3_small"
 ATTENTION_TYPE = "sigmoid_gated"  # "softmax_gated", "sigmoid_gated", "cross"
 SATELLITE_EXTRA_LAYER = False
 STREET_EXTRA_LAYER = False
 
 # Model Configuration
-DEVICE = "cuda"  # Will be updated based on availability
 MODEL_CONFIG = {
     'Effientnet b0': {
         'path': 'trained_model/st-efficientnet_b0_sv-efficientnet_b0_attn-sigmoid_gated_best_model.pth',

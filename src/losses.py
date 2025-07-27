@@ -1,6 +1,3 @@
-"""
-Loss functions and metrics for AQI prediction models.
-"""
 import torch
 import torch.nn as nn
 from typing import Optional, List

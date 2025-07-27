@@ -1,6 +1,3 @@
-"""
-Satellite image fetching utilities using Google Earth Engine.
-"""
 import os
 import numpy as np
 import requests

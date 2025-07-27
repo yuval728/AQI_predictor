@@ -1,6 +1,3 @@
-"""
-Training logic and trainer classes for AQI prediction models.
-"""
 import torch
 import torch.nn as nn
 import torch.optim as optim
