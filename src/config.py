@@ -56,7 +56,7 @@ MODEL_CONFIG = {
     #     'attention_type': 'softmax_gated'
     # },
     'Resnet 18': {
-        'path': 'trained_model/st-resnet_18_sv-resnet_18_attn-sigmoid_gated_best_model.pth',
+        'path': 'config/st-resnet_18_sv-resnet_18_attn-sigmoid_gated_best_model.pth',
         'satellite_encoder': 'resnet_18',
         'street_encoder': 'resnet_18',
         'dropout': 0.5,
