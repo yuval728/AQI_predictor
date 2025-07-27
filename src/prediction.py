@@ -46,7 +46,7 @@ class AQIPredictor:
                 if config.get('satellite_encoder'):
                     satellite_encoder = BaseEncoder(
                         arch=config['satellite_encoder'],
-                        no_channels=config.get('satellite_channels', 3),
+                        no_channels=config.get('satellite_channels', 7),
                         dropout=config.get('dropout', 0.0),
                         add_block=config.get('extra_layer', False),
                         num_frozen=config.get('frozen_layers', 0)
@@ -61,13 +61,30 @@ class AQIPredictor:
                     num_classes=None
                 )
                 
-                # Load weights with error handling
+                # Load weights with proper handling of checkpoint format
                 try:
-                    checkpoint = torch.load(config['path'], map_location=self.device, weights_only=True)
-                    if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
-                        model.load_state_dict(checkpoint['state_dict'])
+                    checkpoint = torch.load(config['path'], map_location=self.device, weights_only=False)
+                    
+                    # Handle different checkpoint formats
+                    if isinstance(checkpoint, dict):
+                        if 'model_state_dict' in checkpoint:
+                            # Training checkpoint format
+                            state_dict = checkpoint['model_state_dict']
+                            print(f"Loading from training checkpoint (epoch: {checkpoint.get('epoch', 'unknown')})")
+                        elif 'state_dict' in checkpoint:
+                            # Standard state_dict format
+                            state_dict = checkpoint['state_dict']
+                        else:
+                            # Direct state dict
+                            state_dict = checkpoint
                     else:
-                        model.load_state_dict(checkpoint)
+                        # Direct state dict (old format)
+                        state_dict = checkpoint
+                    
+                    # Load the state dict
+                    model.load_state_dict(state_dict, strict=False)
+                    print(f"✓ Successfully loaded weights for {model_name}")
+                    
                 except Exception as load_error:
                     print(f"✗ Failed to load weights for {model_name}: {load_error}")
                     continue
@@ -114,78 +131,56 @@ class AQIPredictor:
         except Exception as e:
             raise ValueError(f"Failed to preprocess street image: {e}")
     
-    def preprocess_satellite_image(self, image, is_seven_band: bool = False) -> torch.Tensor:
-        """Preprocess satellite image."""
+    def preprocess_satellite_image(self, image) -> torch.Tensor:
+        """Preprocess 7-band satellite image."""
         try:
-            if is_seven_band and isinstance(image, np.ndarray):
-                # Handle 7-band satellite images
-                if image.ndim != 3:
-                    raise ValueError(f"Expected 3D array for 7-band image, got {image.ndim}D")
-                
-                tensor = torch.from_numpy(image).float()
-                
-                # Ensure proper shape: (channels, height, width)
-                if tensor.shape[2] <= 7:  # (H, W, C) format
-                    tensor = tensor.permute(2, 0, 1)
-                elif tensor.shape[0] > 7:  # Invalid format
-                    raise ValueError(f"Invalid 7-band image shape: {tensor.shape}")
-                
-                # Pad or truncate to exactly 7 channels
-                if tensor.shape[0] < 7:
-                    padding = torch.zeros(7 - tensor.shape[0], tensor.shape[1], tensor.shape[2])
-                    tensor = torch.cat([tensor, padding], dim=0)
-                elif tensor.shape[0] > 7:
-                    tensor = tensor[:7]
-                
-                # Resize to 224x224
-                tensor = F.interpolate(
-                    tensor.unsqueeze(0), 
-                    size=(224, 224), 
-                    mode='bilinear', 
-                    align_corners=False
-                ).squeeze(0)
-                
-                # Normalize each channel with proper bounds checking
-                means = SATELLITE_MEANS[:7] if len(SATELLITE_MEANS) >= 7 else SATELLITE_MEANS + [0.0] * (7 - len(SATELLITE_MEANS))
-                stds = SATELLITE_STDS[:7] if len(SATELLITE_STDS) >= 7 else SATELLITE_STDS + [1.0] * (7 - len(SATELLITE_STDS))
-                
-                for c in range(7):
-                    tensor[c] = (tensor[c] - means[c]) / max(stds[c], 1e-8)  # Avoid division by zero
-                
-                return tensor.unsqueeze(0).to(self.device)
-            else:
-                # Handle RGB satellite images
-                if isinstance(image, np.ndarray):
-                    if image.dtype != np.uint8:
-                        if image.max() <= 1.0:
-                            image = (image * 255).astype(np.uint8)
-                        else:
-                            image = image.astype(np.uint8)
-                    image = Image.fromarray(image)
-                elif not isinstance(image, Image.Image):
-                    raise ValueError(f"Unsupported image type: {type(image)}")
-                
-                # Convert to RGB if necessary
-                if image.mode != 'RGB':
-                    image = image.convert('RGB')
-                
-                transform = transforms.Compose([
-                    transforms.Resize((224, 224)),
-                    transforms.ToTensor(),
-                    transforms.Normalize(mean=IMAGENET_MEANS, std=IMAGENET_STDS)
-                ])
-                
-                return transform(image).unsqueeze(0).to(self.device)
+            if not isinstance(image, np.ndarray):
+                raise ValueError("Satellite image must be a numpy array")
+            
+            if image.ndim != 3:
+                raise ValueError(f"Expected 3D array for satellite image, got {image.ndim}D")
+            
+            tensor = torch.from_numpy(image).float()
+            
+            # Ensure proper shape: (channels, height, width)
+            if tensor.shape[2] <= 7:  # (H, W, C) format
+                tensor = tensor.permute(2, 0, 1)
+            elif tensor.shape[0] > 7:  # Invalid format
+                raise ValueError(f"Invalid satellite image shape: {tensor.shape}")
+            
+            # Ensure exactly 7 channels
+            if tensor.shape[0] < 7:
+                padding = torch.zeros(7 - tensor.shape[0], tensor.shape[1], tensor.shape[2])
+                tensor = torch.cat([tensor, padding], dim=0)
+            elif tensor.shape[0] > 7:
+                tensor = tensor[:7]
+            
+            # Resize to 224x224
+            tensor = F.interpolate(
+                tensor.unsqueeze(0), 
+                size=(224, 224), 
+                mode='bilinear', 
+                align_corners=False
+            ).squeeze(0)
+            
+            # Normalize each channel
+            means = SATELLITE_MEANS[:7]
+            stds = SATELLITE_STDS[:7]
+            
+            for c in range(7):
+                tensor[c] = (tensor[c] - means[c]) / max(stds[c], 1e-8)
+            
+            return tensor.unsqueeze(0).to(self.device)
+            
         except Exception as e:
             raise ValueError(f"Failed to preprocess satellite image: {e}")
     
-    def predict(self, street_image, satellite_image=None, satellite_7_bands=None) -> List[Dict[str, Any]]:
+    def predict(self, street_image, satellite_7_bands=None) -> List[Dict[str, Any]]:
         """
         Predict AQI and air quality metrics.
         
         Args:
             street_image: Street view image (PIL Image or numpy array)
-            satellite_image: RGB satellite image (PIL Image or numpy array)
             satellite_7_bands: 7-band satellite image (numpy array)
         
         Returns:
@@ -199,13 +194,8 @@ class AQIPredictor:
             street_tensor = self.preprocess_street_image(street_image)
             
             satellite_tensor = None
-            satellite_7_tensor = None
-            
-            if satellite_image is not None:
-                satellite_tensor = self.preprocess_satellite_image(satellite_image, is_seven_band=False)
-            
             if satellite_7_bands is not None:
-                satellite_7_tensor = self.preprocess_satellite_image(satellite_7_bands, is_seven_band=True)
+                satellite_tensor = self.preprocess_satellite_image(satellite_7_bands)
             
         except Exception as e:
             return [{"error": f"Preprocessing failed: {e}"}]
@@ -217,18 +207,9 @@ class AQIPredictor:
         for i, (model, model_name) in enumerate(zip(self.models, model_names)):
             try:
                 with torch.no_grad():
-                    config = MODEL_CONFIG[model_name]
-                    
-                    # Choose appropriate satellite input
-                    sat_input = None
-                    if config.get('satellite_channels') == 7 and satellite_7_tensor is not None:
-                        sat_input = satellite_7_tensor
-                    elif config.get('satellite_channels', 3) == 3 and satellite_tensor is not None:
-                        sat_input = satellite_tensor
-                    
                     # Forward pass
-                    if sat_input is not None:
-                        outputs = model(street_tensor, sat_input)
+                    if satellite_tensor is not None:
+                        outputs = model(street_tensor, satellite_tensor)
                     else:
                         outputs = model(street_tensor)
                     
@@ -285,14 +266,12 @@ def get_predictor() -> AQIPredictor:
 
 
 def predict_aqi(captured_image: Image.Image, 
-                satellite_image: Optional[Image.Image] = None, 
                 satellite_7_bands: Optional[np.ndarray] = None) -> List[Dict[str, Any]]:
     """
     Predict AQI using street and satellite images (backward compatibility).
     
     Args:
         captured_image: Street view image
-        satellite_image: RGB satellite image
         satellite_7_bands: 7-band satellite image array
     
     Returns:
@@ -300,6 +279,6 @@ def predict_aqi(captured_image: Image.Image,
     """
     try:
         predictor = get_predictor()
-        return predictor.predict(captured_image, satellite_image, satellite_7_bands)
+        return predictor.predict(captured_image, satellite_7_bands)
     except Exception as e:
         return [{"error": f"Prediction failed: {e}"}]
