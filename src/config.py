@@ -55,16 +55,16 @@ MODEL_CONFIG = {
     #     'satellite_channels': 7,
     #     'attention_type': 'softmax_gated'
     # },
-    # 'Effientnet b2': {
-    #     'path': 'trained_model/st-efficientnet_b2_sv-efficientnet_b2_attn-sigmoid_gated_best_model.pth',
-    #     'satellite_encoder': 'efficientnet_b2',
-    #     'street_encoder': 'efficientnet_b2',
-    #     'dropout': 0.5,
-    #     'extra_layer': False,
-    #     'frozen_layers': 0,
-    #     'satellite_channels': 7,
-    #     'attention_type': 'sigmoid_gated'
-    # },
+    'Resnet 18': {
+        'path': 'trained_model/st-resnet_18_sv-resnet_18_attn-sigmoid_gated_best_model.pth',
+        'satellite_encoder': 'resnet_18',
+        'street_encoder': 'resnet_18',
+        'dropout': 0.5,
+        'extra_layer': False,
+        'frozen_layers': 0,
+        'satellite_channels': 7,
+        'attention_type': 'sigmoid_gated'
+    },
     # 'MobileNet v3 large': {
     #     'path': 'trained_model/st-mobilenet_v3_large_sv-mobilenet_v3_large_attn-sigmoid_gated_best_model.pth',
     #     'satellite_encoder': 'mobilenet_v3_large',
@@ -75,16 +75,16 @@ MODEL_CONFIG = {
     #     'satellite_channels': 7,
     #     'attention_type': 'sigmoid_gated'
     # }
-    'MobileNet v3 Small': {
-        'path': 'checkpoints/best_model_mobilenet_v3_small_mobilenet_v3_small.pth',
-        'satellite_encoder': 'mobilenet_v3_small',
-        'street_encoder': 'mobilenet_v3_small',
-        'dropout': 0.5,
-        'extra_layer': False,
-        'frozen_layers': 0,
-        'satellite_channels': 7,
-        'attention_type': 'sigmoid_gated'
-    }
+    # 'MobileNet v3 Small': {
+    #     'path': 'checkpoints/best_model_mobilenet_v3_small_mobilenet_v3_small.pth',
+    #     'satellite_encoder': 'mobilenet_v3_small',
+    #     'street_encoder': 'mobilenet_v3_small',
+    #     'dropout': 0.5,
+    #     'extra_layer': False,
+    #     'frozen_layers': 0,
+    #     'satellite_channels': 7,
+    #     'attention_type': 'sigmoid_gated'
+    # }
 }
 
 # Normalization constants
