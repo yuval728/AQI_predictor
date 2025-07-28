@@ -13,8 +13,8 @@ load_dotenv()
 st.set_page_config(layout="wide")
 
 # API Configuration
-API_BASE_URL = "http://localhost:8000"  
-API_URL = os.getenv("RAILWAY_PUBLIC_DOMAIN", "http://localhost:8000")
+#  = "http://localhost:8000"  
+API_BASE_URL = os.getenv("RAILWAY_PUBLIC_DOMAIN", "http://localhost:8000")
 
 def encode_image_to_base64(image: Image.Image) -> str:
     """Convert PIL Image to base64 string."""
