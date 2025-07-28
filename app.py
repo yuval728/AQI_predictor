@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 from PIL import Image
@@ -7,11 +8,13 @@ import requests
 import base64
 import io
 from typing import Optional, Dict, Any
-
+from dotenv import load_dotenv
+load_dotenv()
 st.set_page_config(layout="wide")
 
 # API Configuration
-API_BASE_URL = "http://localhost:8000"  # Change this to your FastAPI server URL
+API_BASE_URL = "http://localhost:8000"  
+API_URL = os.getenv("RAILWAY_PUBLIC_DOMAIN", "http://localhost:8000")
 
 def encode_image_to_base64(image: Image.Image) -> str:
     """Convert PIL Image to base64 string."""
