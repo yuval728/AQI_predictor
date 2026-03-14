@@ -13,39 +13,50 @@ A machine learning application that predicts Air Quality Index (AQI) and air pol
 
 ## 📁 Project Structure
 
-```
+```text
 AQI_predictor/
 ├── src/                          # Core source code
 │   ├── __init__.py
 │   ├── config.py                 # Configuration settings
 │   ├── data_processing.py        # Data preprocessing utilities
-│   ├── satellite_utils.py        # Satellite image fetching
+│   ├── losses.py                 # Custom loss functions
 │   ├── models.py                 # Neural network models
+│   ├── pipeline.py               # Training pipeline
 │   ├── prediction.py             # Prediction utilities
-│   └── training.py               # Training utilities
+│   ├── satellite_utils.py        # Satellite image fetching
+│   ├── trainer.py                # Model training logic
+│   └── visualization.py          # Plotting and visualization utilities
+├── api.py                        # FastAPI backend server
 ├── app.py                        # Streamlit web application
-├── train.py                      # Model training script
-├── preprocess_data.py            # Data preprocessing script
-├── requirements.txt              # Project dependencies
+├── run_pipeline.py               # Script to run the training pipeline
+├── requirements.txt              # Core project dependencies
+├── api_requirements.txt          # API-specific dependencies
+├── ui_requirements.txt           # UI-specific dependencies
+├── pyproject.toml                # Project metadata and dependencies (uv)
+├── uv.lock                       # uv lockfile
 ├── README.md                     # This file
-└── trained_model/                # Pre-trained model weights
-    ├── st-efficientnet_b0_sv-efficientnet_b0_attn-sigmoid_gated_best_model.pth
-    ├── st-efficientnet_b1_sv-efficientnet_b1_attn-softmax_gated_best_model.pth
-    ├── st-efficientnet_b2_sv-efficientnet_b2_attn-sigmoid_gated_best_model.pth
-    └── st-mobilenet_v3_large_sv-mobilenet_v3_large_attn-sigmoid_gated_best_model.pth
+└── checkpoints/                  # Pre-trained model weights
+    └── st-resnet18_sv-resnet18_attn-sigmoid_gated_best_model.pth
 ```
 
 ## 🛠️ Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/AQI_predictor.git
+   git clone https://github.com/yuval728/AQI_predictor.git
    cd AQI_predictor
    ```
 
 2. **Install dependencies**:
+   Using `uv` (recommended):
+   ```bash
+   uv sync
+   ```
+   Or using pip:
    ```bash
    pip install -r requirements.txt
+   pip install -r api_requirements.txt
+   pip install -r ui_requirements.txt
    ```
 
 3. **Set up Google Earth Engine**:
@@ -56,47 +67,35 @@ AQI_predictor/
 
 ## 🚀 Quick Start
 
-### Web Application
+### Web Application & API
 
-Run the Streamlit web application:
+The application consists of a FastAPI backend and a Streamlit frontend.
 
-```bash
-streamlit run app.py
-```
+1. **Start the FastAPI server**:
+   ```bash
+   uvicorn api:app --reload
+   # or
+   python api.py
+   ```
+
+2. **Start the Streamlit web application (in a new terminal)**:
+   ```bash
+   streamlit run app.py
+   ```
 
 This will launch a web interface where you can:
 - Upload or capture street view images
 - Get GPS coordinates automatically
-- View predictions from multiple models
+- View predictions from the model
 - See satellite imagery and 7-band analysis
 - Visualize results on an interactive map
 
-### Data Preprocessing
-
-Process raw dataset for training:
-
-```bash
-python preprocess_data.py \
-    --input_csv data/raw/dataset.csv \
-    --output_csv data/processed/processed_dataset.csv \
-    --download_satellite \
-    --satellite_output_dir data/satellite_images \
-    --impute_missing
-```
-
 ### Model Training
 
-Train a new model:
+Run the training pipeline:
 
 ```bash
-python train.py \
-    --config efficientnet_b0 \
-    --data_path data/processed/processed_dataset.csv \
-    --street_img_dir data/street_images \
-    --satellite_img_dir data/satellite_images \
-    --batch_size 32 \
-    --epochs 50 \
-    --output_dir trained_models
+python run_pipeline.py
 ```
 
 ## 🏗️ Architecture
@@ -173,10 +172,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Kaggle for the air pollution dataset
 - PyTorch and Streamlit communities
 - Contributors to the open-source libraries used
-
-## 📞 Contact
-
-For questions or support, please open an issue or contact [your-email@example.com].
 
 ---
 
